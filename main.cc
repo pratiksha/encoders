@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
   vector<double> test( {15, 7, 6, 6, 5} );
-  shared_ptr<EncodingTree> tree = EncodingTree::construct_sf( test );
+  shared_ptr<EncodingTree> tree = EncodingTree::construct_huffman( test );
 
   auto codewords = tree->codewords();
   for ( auto & x : codewords ) {

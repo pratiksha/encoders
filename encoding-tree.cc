@@ -18,7 +18,11 @@ struct tree_ptr_gt {
   }
 };
 
-shared_ptr<EncodingTree> construct_huffman_large( vector<double> dist ) {
+shared_ptr<EncodingTree> EncodingTree::construct_huffman( vector<double> dist ) {
+  if ( dist.empty() ) return nullptr;
+  
+  if ( dist.size() == 1 ) return make_shared<EncodingTree>( true, dist[0] );
+
   priority_queue<shared_ptr<EncodingTree>, vector<shared_ptr<EncodingTree>>, tree_ptr_gt> pq;
   for ( unsigned int i = 0; i < dist.size(); i++ ) {
     pq.push( make_shared<EncodingTree>( true, dist[i] ) );
@@ -33,24 +37,6 @@ shared_ptr<EncodingTree> construct_huffman_large( vector<double> dist ) {
   }
 
   return pq.top();
-}
-
-shared_ptr<EncodingTree> EncodingTree::construct_huffman( vector<double> dist ) {
-  if ( dist.empty() ) return nullptr;
-  
-  if ( dist.size() == 1 ) return make_shared<EncodingTree>( true, dist[0] );
-  
-  if ( dist.size() == 2 ) {
-    auto ch1 = make_shared<EncodingTree>( true, dist[0] );
-    auto ch2 = make_shared<EncodingTree>( true, dist[1] );
-    if ( dist[0] > dist[1] ) {
-      return make_shared<EncodingTree>( ch1, ch2 );
-    } else {
-      return make_shared<EncodingTree>( ch2, ch1 );
-    }
-  }
-
-  return construct_huffman_large( dist );
 }
 
 shared_ptr<EncodingTree> EncodingTree::construct_sf( vector<double> dist ) {
