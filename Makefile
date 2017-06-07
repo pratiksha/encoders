@@ -1,5 +1,5 @@
-source = shannon-fano.cc huffman.cc main.cc
-objects = shannon-fano.o huffman.o
+source = shannon-fano.cc huffman.cc sample-utils.cc counter.cc random.cc main.cc
+objects = shannon-fano.o huffman.o sample-utils.o counter.o random.o
 executables = main
 CXX = g++
 LANGFLAGS = -std=c++14
