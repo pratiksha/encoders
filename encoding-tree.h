@@ -35,7 +35,7 @@ class EncodingTree {
     if ( is_leaf_ ) return value_ == other.value_;
 
     return ( value_ == other.value_ and
-             left_ == other.left_ and
+             left_  == other.left_  and
              right_ == other.right_ );
   }
 
@@ -43,6 +43,12 @@ class EncodingTree {
     return value_ < other.value_;
   }
 
+  bool operator>( const EncodingTree & other ) {
+    return value_ > other.value_;
+  }
+
+  double expected_length();
+  std::vector<std::pair<double, std::string>> codewords();
   std::string str();
   
   static std::shared_ptr<EncodingTree> construct_huffman( std::vector<double> dist );
