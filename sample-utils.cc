@@ -65,6 +65,11 @@ int SampleUtils::uniform_int( int range ) {
   return rand( Random::global_PRNG() );
 }
 
+int SampleUtils::uniform_int( int start, int end ) {
+  boost::random::uniform_int_distribution<> rand( start, end );
+  return rand( Random::global_PRNG() );
+}
+
 pair<vector<double>, vector<double>> SampleUtils::split_even( vector<double> dist ) {
   const auto & norm_dist = SampleUtils::normalize( dist );
 

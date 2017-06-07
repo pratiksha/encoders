@@ -1,19 +1,37 @@
 #include "encoding-tree.h"
 #include "sample-utils.h"
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <vector>
 
 using namespace std;
 
-int main() {
-  vector<double> test( {15, 7, 6, 6, 5} );
-  shared_ptr<EncodingTree> tree = EncodingTree::construct_huffman( test );
+vector<double> random_dist() {
+  vector<double> ret;
+  int start = 1000;
 
-  auto codewords = tree->codewords();
-  for ( auto & x : codewords ) {
-    cout << x.first << "\t" << x.second << endl;
+  while ( start > 0 ) {
+    auto next = SampleUtils::uniform_int( 1, start );
+    ret.push_back( next );
+    start -= next;
   }
-  cout << tree->expected_length() << endl;
+
+  return ret;
+}
+
+int main() {
+  for ( int i = 0; i < 10000; i++ ) {
+    auto dist = random_dist();
+    sort( dist.begin(), dist.end(), greater<double>() );
+    shared_ptr<EncodingTree> htree = EncodingTree::construct_huffman( dist );
+    shared_ptr<EncodingTree> sftree = EncodingTree::construct_sf( dist );
+    if ( htree->expected_length() != sftree->expected_length() ) {
+      auto h_cws = htree->codewords();
+      auto sf_cws = sftree->codewords();
+      cout << (h_cws[0].second.size() > sf_cws[0].second.size()) << " " << h_cws[0].second.size() << " " << sf_cws[0].second.size() << endl;
+      cout << endl;
+    }
+  }
 }

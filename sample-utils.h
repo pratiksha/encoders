@@ -13,6 +13,7 @@ namespace SampleUtils {
   double mean( std::vector<std::pair<double, double>> dist );
   
   int uniform_int( int range );
+  int uniform_int( int start, int end );
 
   /* assumes dist is sorted */
   std::pair<std::vector<double>, std::vector<double>> split_even( std::vector<double> dist );

@@ -1,6 +1,7 @@
 #include "encoding-tree.h"
 #include "sample-utils.h"
 
+#include <algorithm>
 #include <iostream>
 #include <queue>
 #include <memory>
@@ -73,6 +74,7 @@ vector<pair<double, string>> EncodingTree::codewords() {
     ret.emplace_back( x.first, "1" + x.second );
   }
 
+  sort( ret.begin(), ret.end(), std::greater<pair<double, string>>() );
   return ret;
 }
 
