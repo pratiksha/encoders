@@ -2,15 +2,17 @@
 #include "sample-utils.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <vector>
 
 using namespace std;
 
+/* generates skewed distributions */
 vector<double> random_dist() {
   vector<double> ret;
-  int start = 1000;
+  int start = 5000;
 
   while ( start > 0 ) {
     auto next = SampleUtils::uniform_int( 1, start );
@@ -21,17 +23,96 @@ vector<double> random_dist() {
   return ret;
 }
 
-int main() {
+void vary_max() {
+  int arr_size = 100;
+  for ( double i = 1; i < 1000; i++ ) {
+    vector<double> dist;
+    double max = 1 - i/1000;
+    dist.push_back( max );
+    for ( int j = 0; j < arr_size - 1; j++ ) {
+      dist.push_back( (1-max) / (arr_size-1) );
+    }
+    
+    sort( dist.begin(), dist.end(), greater<double>() );
+    shared_ptr<EncodingTree> htree = EncodingTree::construct_huffman( dist );
+    shared_ptr<EncodingTree> sftree = EncodingTree::construct_sf( dist );
+    cout << (htree->expected_length() - sftree->expected_length() <= 0.000001) << " "
+         << htree->expected_length() << " " << sftree->expected_length() << endl;
+  }
+}
+
+void test_lengths() {
   for ( int i = 0; i < 10000; i++ ) {
     auto dist = random_dist();
     sort( dist.begin(), dist.end(), greater<double>() );
     shared_ptr<EncodingTree> htree = EncodingTree::construct_huffman( dist );
     shared_ptr<EncodingTree> sftree = EncodingTree::construct_sf( dist );
-    if ( htree->expected_length() != sftree->expected_length() ) {
-      auto h_cws = htree->codewords();
-      auto sf_cws = sftree->codewords();
-      cout << (h_cws[0].second.size() > sf_cws[0].second.size()) << " " << h_cws[0].second.size() << " " << sf_cws[0].second.size() << endl;
+    auto h_cws = htree->codewords();
+    auto sf_cws = sftree->codewords();
+    if ( h_cws[0].second.size() > sf_cws[0].second.size() ) {
+      for ( auto x : h_cws ) {
+        cout << x.first << "\t" << x.second << endl;
+      }
+      cout << endl;
+      for ( auto x : sf_cws ) {
+        cout << x.first << "\t" << x.second << endl;
+      }
+ 
+      cout << endl;
+      cout << h_cws[0].second.size() << " " << sf_cws[0].second.size() << endl;
+      cout << htree->expected_length() << " " << sftree->expected_length() << endl;
+    }
+  }
+}
+
+vector<double> test_dist_1( { 190, 140, 121, 115, 113, 112, 107, 37, 32, 12, 11, 9, 1 } );
+vector<double> test_dist_2( { 343, 314, 302, 26, 11, 4 } );
+vector<double> test_dist_3( { 160, 152, 142, 110, 108, 92, 72, 56, 46, 26, 19, 7, 6, 3, 1 } );
+vector<double> test_dist_4( { 169, 164, 139, 113, 98, 95, 81, 52, 48, 20, 19, 2 } );
+vector<double> test_dist_5( { 838, 775, 705, 595, 498, 406, 379, 313, 211, 149, 55, 32, 17, 15, 12 } );
+vector<vector<double>> test_dists( { test_dist_1,
+      // test_dist_2,
+      test_dist_3,
+      test_dist_4,
+      test_dist_5
+      } );
+
+
+void testcase( vector<double> dist ) {
+  vector<double> norm_dist = SampleUtils::normalize(dist);
+  sort(norm_dist.begin(), norm_dist.end(), greater<double>());
+  
+  shared_ptr<EncodingTree> htree = EncodingTree::construct_huffman( dist );
+  shared_ptr<EncodingTree> sftree = EncodingTree::construct_sf( dist );
+  auto h_cws = htree->codewords();
+  auto sf_cws = sftree->codewords();
+  if ( h_cws[0].second.size() > sf_cws[0].second.size() ) {
+    cout << h_cws[0].second.size() << " " << sf_cws[0].second.size() << endl;
+    cout << htree->expected_length() << " " << sftree->expected_length() << endl;
+  }
+}
+
+void testcase_vary( vector<double> dist ) {
+  for ( double i = dist[3]; i < dist[1]; i++ ) {
+    dist[2] = i;
+    vector<double> norm_dist = SampleUtils::normalize(dist);
+    sort(norm_dist.begin(), norm_dist.end(), greater<double>());
+    
+    shared_ptr<EncodingTree> htree = EncodingTree::construct_huffman( dist );
+    shared_ptr<EncodingTree> sftree = EncodingTree::construct_sf( dist );
+    auto h_cws = htree->codewords();
+    auto sf_cws = sftree->codewords();
+    if ( h_cws[0].second.size() > sf_cws[0].second.size() ) {
+      cout << i << "\t";
+      for ( auto x : norm_dist ) cout << x << " ";
       cout << endl;
     }
+  }
+  cout << endl;
+}
+
+int main() {
+  for ( auto & dist : test_dists ) {
+    testcase_vary( dist );
   }
 }

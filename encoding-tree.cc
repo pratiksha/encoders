@@ -48,6 +48,8 @@ shared_ptr<EncodingTree> EncodingTree::construct_sf( vector<double> dist ) {
   auto split = SampleUtils::split_even( dist );
   auto ch1 = construct_sf( split.first );
   auto ch2 = construct_sf( split.second );
+  //cout << split.first.size() << " " << split.second.size() << endl;
+  
   return make_shared<EncodingTree>( ch1, ch2 );
 }
 

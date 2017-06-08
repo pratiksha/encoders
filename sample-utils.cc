@@ -3,6 +3,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <cmath>
 #include <map>
+#include <limits>
 #include <vector>
 #include <unordered_set>
 
@@ -34,7 +35,7 @@ vector<double> SampleUtils::normalize( vector<double> counts ) {
   }
 
   vector<double> ret;
-  for ( int c : counts ) {
+  for ( double c : counts ) {
     ret.push_back( c / sum );
   }
   return ret;
@@ -72,7 +73,7 @@ int SampleUtils::uniform_int( int start, int end ) {
 
 pair<vector<double>, vector<double>> SampleUtils::split_even( vector<double> dist ) {
   const auto & norm_dist = SampleUtils::normalize( dist );
-
+  
   double left_sum = 0.0;
   int idx = 0;
   for ( double x : norm_dist ) {
@@ -82,7 +83,8 @@ pair<vector<double>, vector<double>> SampleUtils::split_even( vector<double> dis
   }
 
   double cmp = left_sum - norm_dist[idx-1];
-  if ( 0.5 - cmp < left_sum - 0.5 ) {
+  //cout << cmp << " " << left_sum << endl;
+  if ( (1.0 - cmp - left_sum) < -numeric_limits<double>::epsilon() ) {
     /* break before idx */
     return make_pair( vector<double>(dist.begin(), dist.begin() + idx - 1),
                       vector<double>(dist.begin() + idx - 1, dist.end()) );
