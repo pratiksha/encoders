@@ -4,10 +4,15 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
 
 using namespace std;
+
+bool fuzzy_geq( double lhs, double rhs ) {
+  return (lhs >= (rhs - std::numeric_limits<double>::epsilon()));
+}
 
 /* generates skewed distributions */
 vector<double> random_dist() {
@@ -21,6 +26,57 @@ vector<double> random_dist() {
   }
 
   return ret;
+}
+
+void print_vec( vector<double> & dist ) {
+  for ( auto x : dist ) cout << x << ", ";
+  cout << endl;
+}
+
+bool increment( double incr, double max, double start, vector<double> & dist ) {
+  bool done = true;
+
+  double allow = max;
+  for ( int i = dist.size() - 1; i >= 0; i-- ) {
+    if ( fuzzy_geq( dist[i], allow ) ) {
+      dist[i] = start;
+    } else {
+      dist[i] += incr;
+      done = false;
+      break;
+    }
+    allow -= dist[i];
+  }
+
+  //print_vec(dist);
+  return done;
+}
+
+void grid_search( int dist_size ) {
+  double incr = 0.1;
+  double start = 0.1;
+  double max = 1.0;
+  
+  vector<double> dist;
+  for ( int i = 0; i < dist_size; i++ ) {
+    dist.push_back( start );
+  }
+
+  while ( true ) {
+    vector<double> norm_dist = SampleUtils::normalize(dist);
+    sort(norm_dist.begin(), norm_dist.end(), greater<double>());
+    shared_ptr<EncodingTree> htree = EncodingTree::construct_huffman( norm_dist );
+    shared_ptr<EncodingTree> sftree = EncodingTree::construct_sf( norm_dist );
+    auto h_cws = htree->codewords();
+    auto sf_cws = sftree->codewords();
+    if ( h_cws[0].second.size() > sf_cws[0].second.size() ) {
+      print_vec(norm_dist);
+      cout << h_cws[0].second.size() << " " << sf_cws[0].second.size() << endl;
+      cout << htree->expected_length() << " " << sftree->expected_length() << endl;
+    }
+
+    if ( increment( incr, max, start, dist ) ) break;
+  }
 }
 
 void vary_max() {
@@ -112,7 +168,5 @@ void testcase_vary( vector<double> dist ) {
 }
 
 int main() {
-  for ( auto & dist : test_dists ) {
-    testcase_vary( dist );
-  }
+  grid_search( 9 );
 }

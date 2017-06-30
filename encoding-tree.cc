@@ -34,7 +34,11 @@ shared_ptr<EncodingTree> EncodingTree::construct_huffman( vector<double> dist ) 
     pq.pop();
     auto c2 = pq.top();
     pq.pop();
-    pq.push( make_shared<EncodingTree>( c1, c2 ) );
+    if ( c1->value_ > c2->value_ ) {
+      pq.push( make_shared<EncodingTree>( c1, c2 ) );
+    } else {
+      pq.push( make_shared<EncodingTree>( c2, c1 ) );
+    }
   }
 
   return pq.top();
@@ -48,7 +52,6 @@ shared_ptr<EncodingTree> EncodingTree::construct_sf( vector<double> dist ) {
   auto split = SampleUtils::split_even( dist );
   auto ch1 = construct_sf( split.first );
   auto ch2 = construct_sf( split.second );
-  //cout << split.first.size() << " " << split.second.size() << endl;
   
   return make_shared<EncodingTree>( ch1, ch2 );
 }

@@ -34,6 +34,10 @@ vector<double> SampleUtils::normalize( vector<double> counts ) {
     sum += c;
   }
 
+  if ( sum == 0 ) {
+    return counts;
+  }
+
   vector<double> ret;
   for ( double c : counts ) {
     ret.push_back( c / sum );
@@ -82,8 +86,14 @@ pair<vector<double>, vector<double>> SampleUtils::split_even( vector<double> dis
     if ( left_sum > 0.5 ) break;
   }
 
+  if ( left_sum == 0.0 ) {
+    idx = dist.size() / 2;
+    return make_pair( vector<double>(dist.begin(), dist.begin() + idx),
+                      vector<double>(dist.begin() + idx, dist.end()) );
+  }
+  
   double cmp = left_sum - norm_dist[idx-1];
-  //cout << cmp << " " << left_sum << endl;
+  //cout << cmp << " " << left_sum << " " << idx << endl;
   if ( (1.0 - cmp - left_sum) < -numeric_limits<double>::epsilon() ) {
     /* break before idx */
     return make_pair( vector<double>(dist.begin(), dist.begin() + idx - 1),
