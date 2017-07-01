@@ -52,7 +52,7 @@ shared_ptr<EncodingTree> EncodingTree::construct_sf( vector<double> dist ) {
   auto split = SampleUtils::split_even( dist );
   auto ch1 = construct_sf( split.first );
   auto ch2 = construct_sf( split.second );
-  
+
   return make_shared<EncodingTree>( ch1, ch2 );
 }
 
@@ -69,7 +69,7 @@ vector<pair<double, string>> EncodingTree::codewords() {
     ret.emplace_back( value_, "" );
     return ret;
   }
-
+  //cout << "cw " << left_->value_ << " " << right_->value_ << endl;
   auto left_words = left_->codewords();
   auto right_words = right_->codewords();
   for ( auto & x : left_words ) {
@@ -86,4 +86,18 @@ vector<pair<double, string>> EncodingTree::codewords() {
 string EncodingTree::str() {
   if ( is_leaf_ ) return to_string( value_ );
   return left_->str() + " " + right_->str();
+}
+
+double EncodingTree::min_child() const {
+  if ( is_leaf_ ) {
+    return value_;
+  }
+
+  return min( left_->min_child(), right_->min_child() );
+}
+
+unsigned int EncodingTree::depth() const {
+  if ( is_leaf_ ) return 1;
+
+  return max( left_->depth() + 1, right_->depth() + 1 );
 }

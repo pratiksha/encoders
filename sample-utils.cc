@@ -93,7 +93,8 @@ pair<vector<double>, vector<double>> SampleUtils::split_even( vector<double> dis
   }
   
   double cmp = left_sum - norm_dist[idx-1];
-  //cout << cmp << " " << left_sum << " " << idx << endl;
+  //cout << 1.0-cmp-left_sum << " ";
+  //cout << cmp << " " << norm_dist[idx-1] << " " << left_sum << " " << idx << endl;
   if ( (1.0 - cmp - left_sum) < -numeric_limits<double>::epsilon() ) {
     /* break before idx */
     return make_pair( vector<double>(dist.begin(), dist.begin() + idx - 1),

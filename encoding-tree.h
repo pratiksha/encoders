@@ -1,6 +1,9 @@
 #ifndef ENCODING_TREE_H
 #define ENCODING_TREE_H
 
+#include <cmath>
+#include <iostream>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,6 +33,9 @@ class EncodingTree {
     {};
 
   double value() { return value_; }
+
+  double min_child() const;
+  unsigned int depth() const;
   
   bool operator==( const EncodingTree & other ) {
     if ( is_leaf_ ) return value_ == other.value_;
@@ -44,6 +50,10 @@ class EncodingTree {
   }
 
   bool operator>( const EncodingTree & other ) {
+    if ( std::abs(value_ - other.value_) < 3*std::numeric_limits<double>::epsilon() ) {
+      return this->depth() < other.depth();
+    }
+    
     return value_ > other.value_;
   }
 

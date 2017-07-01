@@ -17,7 +17,7 @@ bool fuzzy_geq( double lhs, double rhs ) {
 }
 
 void print_vec( vector<double> & dist ) {
-  for ( auto x : dist ) cout << x << ", ";
+  for ( auto x : dist ) cout << x << ", \t";
   cout << endl;
 }
 
@@ -67,20 +67,24 @@ vector<vector<double>> enumerate_dists( vector<double> dist, double step,
 int main() {
   vector<double> start_dist;
   start_dist.push_back(1.0);
-  for ( int i = 0; i < 9; i++ ) {
+  for ( int i = 0; i < 7; i++ ) {
     start_dist.push_back(0.0);
   }
-  auto ret = enumerate_dists( start_dist, 0.02, 1.0, 1.0 );
+  auto ret = enumerate_dists( start_dist, 0.015, 1.0, 1.0 );
 
   for ( auto & dist : ret ) {
+    vector<double> norm_dist = dist;
+    sort(norm_dist.begin(), norm_dist.end(), greater<double>());
+    print_vec(norm_dist);
     shared_ptr<EncodingTree> htree = EncodingTree::construct_huffman( dist );
     shared_ptr<EncodingTree> sftree = EncodingTree::construct_sf( dist );
     auto h_cws = htree->codewords();
     auto sf_cws = sftree->codewords();
     if ( h_cws[0].second.size() > sf_cws[0].second.size() ) {
-      print_vec(dist);
+      cout << "^^^^" << " ";
+      cout << h_cws[0].second << " " << sf_cws[0].second << endl;
       cout << h_cws[0].second.size() << " " << sf_cws[0].second.size() << endl;
-      cout << htree->expected_length() << " " << sftree->expected_length() << endl;
+      //cout << htree->expected_length() << " " << sftree->expected_length() << endl;
     }
   }
 }
